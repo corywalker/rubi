@@ -3030,8 +3030,62 @@ TrigSimplifyAux[u_.*(a_.*sec[v_]^m_.+b_.*cos[v_]^n_.)^p_.] :=
   u*((a+b*Cos[v]^(m+n))/Cos[v]^m)^p] /;
 IntegersQ[m,n]
 
-(* TODO(corywalker): add back deleted section after parser supports nested
-   comments. *)
+
+(* (* Basis: Csc[z]+Cot[z] == Cot[z/2] *)
+TrigSimplifyAux[(a_.*csc[v_]+b_.*cot[v_])^n_] := a^n*Cot[v/2]^n /; EvenQ[n] && EqQ[a-b,0]
+
+(* Basis: Csc[z]-Cot[z] == Tan[z/2] *)
+TrigSimplifyAux[(a_.*csc[v_]+b_.*cot[v_])^n_] := a^n*Tan[v/2]^n /; EvenQ[n] && EqQ[a+b,0] *)
+
+
+(* (* Basis: Sin[z]*(a+b*Cot[z]) == a*Sin[z] + b*Cos[z] *)
+(* TrigSimplifyAux[u_*sin[v_]^m_.*(a_.+b_.*cot[v_]^2)^p_.] :=
+  u*(b*Cos[v]^2+a*Sin[v]^2)^p /;
+IntegersQ[m,p] && m==2*p *)
+
+(* Basis: a+b*Cot[z] == (b*Cos[z]+a*Sin[z])/Sin[z] *)
+TrigSimplifyAux[u_.*sin[v_]^m_.*(a_.+b_.*cot[v_]^n_.)^p_.] :=
+  u*Sin[v]^(m-n*p)*(b*Cos[v]^n+a*Sin[v]^n)^p /;
+IntegersQ[m,n,p]
+
+(* Basis: Cos[z]*(a+b*Tan[z]) == a*Cos[z] + b*Sin[z] *)
+(* TrigSimplifyAux[u_*cos[v_]^m_.*(a_.+b_.*tan[v_]^2)^p_.] :=
+  u*(b*Sin[v]^2+a*Cos[v]^2)^p /;
+IntegersQ[m,p] && m==2*p *)
+
+(* Basis: a+b*Tan[z] == (b*Sin[z]+a*Cos[z])/Cos[z] *)
+TrigSimplifyAux[u_.*cos[v_]^m_.*(a_.+b_.*tan[v_]^n_.)^p_.] :=
+  u*Cos[v]^(m-n*p)*(b*Sin[v]^n+a*Cos[v]^n)^p /;
+IntegersQ[m,n,p]
+
+(* Basis: (a+b*Tan[z])/Sec[z] == a*Cos[z] + b*Sin[z] *)
+TrigSimplifyAux[u_*sec[v_]^m_.*(a_.+b_.*tan[v_]^2)^p_.] :=
+  u*(b*Sin[v]^2+a*Cos[v]^2)^p /;
+IntegersQ[m,p] && m+2*p==0
+
+(* Basis: (a+b*Cot[z])/Csc[z] == a*Sin[z] + b*Cos[z] *)
+TrigSimplifyAux[u_*csc[v_]^m_.*(a_.+b_.*cot[v_]^2)^p_.] :=
+  u*(b*Cos[v]^2+a*Sin[v]^2)^p /;
+IntegersQ[m,p] && m+2*p==0 *)
+
+
+(* (* Basis: If n is an integer, Sin[z]^(-n)*(a*Cos[z]^n+b*Sin[z]^n) == b+a*Cot[z]^n *)
+TrigSimplifyAux[sin[v_]^m_.*(a_.*cos[v_]^n_.+b_.*sin[v_]^n_.)^p_] :=
+  (b+a*Cot[v]^n)^p /;
+IntegersQ[m,n,p] && n>0 && p<0 && m==-n*p
+
+(* Basis: If n is an integer, Cos[z]^(-n)*(a*Cos[z]^n+b*Sin[z]^n) == a+b*Tan[z]^n *)
+TrigSimplifyAux[cos[v_]^m_.*(a_.*cos[v_]^n_.+b_.*sin[v_]^n_.)^p_] :=
+  (a+b*Tan[v]^n)^p /;
+IntegersQ[m,n,p] && n>0 && p<0 && m==-n*p *)
+
+
+(* (* Basis: If a^2+b^2=0, 1/(a*Cos[z] + b*Sin[z]) == Cos[z]/a + Sin[z]/b *)
+TrigSimplifyAux[(a_.*cos[v_]+b_.*sin[v_])^n_] :=
+  (Cos[v]/a + Sin[v]/b)^(-n) /;
+IntegerQ[n] && n<0 && EqQ[a^2+b^2,0] *)
+
+
 TrigSimplifyAux[u_] := u
 
 
